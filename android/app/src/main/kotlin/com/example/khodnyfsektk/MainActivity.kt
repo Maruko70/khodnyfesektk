@@ -1,4 +1,4 @@
-package com.example.khodnyfesektk
+package com.example.khodnyfsektk
 
 import io.flutter.embedding.android.FlutterActivity
 

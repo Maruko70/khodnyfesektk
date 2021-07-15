@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:khodnyfesektk/Services/auth.dart';
 import 'package:khodnyfesektk/Services/shared.dart';
+import 'package:khodnyfesektk/ad_state.dart';
+import 'package:provider/provider.dart';
 
 import '../consts.dart';
 import 'CompleteRegisterScreen.dart';
+import 'HomeScreen.dart';
 import 'Profile.dart';
 import 'RegisterScreen.dart';
 
@@ -22,6 +26,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailTextEditingConroller = TextEditingController();
   final TextEditingController _passwordTextEditingConroller = TextEditingController();
   bool _load = false;
+
+  BannerAd? banner;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final adState = Provider.of<AdState>(context);
+    adState.initilization.then((status){
+      setState(() {
+        banner = BannerAd(
+          adUnitId: adState.bannerAdUnitId,
+          size: AdSize.banner,
+          request: AdRequest(),
+          listener: adState.adListener,
+        )..load();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +65,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         GestureDetector(
                       onTap: () {
+                        setState(() {
+                          _load = true;
+                        });
                         AuthService().signInWithFacebook().then((value){
                           if(value!.additionalUserInfo!.isNewUser || sharedPrefs.gender.length < 4)
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteRegister()));
                           else
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                        }).whenComplete((){
+                          setState(() {
+                          _load = false;
+                        });
                         });
                       },
                       child: Container(
@@ -78,11 +107,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 20,),
                     GestureDetector(
                       onTap: () {
+                        setState(() {
+                          _load = true;
+                        });
                         AuthService().signInWithGoogle().then((value){
                           if(sharedPrefs.gender.length < 4)
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompleteRegister()));
                           else
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                        }).whenComplete((){
+                          setState(() {
+                          _load = false;
+                        });
                         });
                       },
                       child: Container(
@@ -170,11 +206,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             _load = true;
                           });
                           if(_emailTextEditingConroller.text.isEmpty || _emailTextEditingConroller.text.length < 5)
-                          Fluttertoast.showToast(msg: "يجب ادخال بريد الكتروني صحيح");
+                          {
+                            Fluttertoast.showToast(msg: "يجب ادخال بريد الكتروني صحيح");
+                            setState(() {
+                              _load = false;
+                            });
+                          }
                           else if(_passwordTextEditingConroller.text.isEmpty || _passwordTextEditingConroller.text.length < 7)
-                          Fluttertoast.showToast(msg: "كلمة المرور يجب ان تتكون من 7 احرف على الاقل");
+                          {
+                            Fluttertoast.showToast(msg: "كلمة المرور يجب ان تتكون من 7 احرف على الاقل");
+                              setState(() {
+                              _load = false;
+                            });
+                          }
                           else{
                             AuthService().signIn(_emailTextEditingConroller.text.trim(), _passwordTextEditingConroller.text.trim()).whenComplete((){
+                              sharedPrefs.loggedin = true;
                               setState(() {
                                 _load = false;
                               });
@@ -211,6 +258,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  Container(
+                    height: 50,
+                    child: AdWidget(ad: banner!),
+                  )
                 ],
               ),
             ),

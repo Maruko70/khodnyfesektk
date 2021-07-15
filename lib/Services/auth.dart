@@ -4,28 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:khodnyfesektk/Screens/Profile.dart';
+import 'package:khodnyfesektk/Screens/LoginScreen.dart';
 import 'package:khodnyfesektk/Screens/RegisterScreen.dart';
 import 'package:khodnyfesektk/Services/shared.dart';
 
 class AuthService {
-  fbSignIn() async {
-    final LoginResult result = await FacebookAuth.instance
-        .login(); // by default we request the email and the public profile
-    // or FacebookAuth.i.login()
-    if (result.status == LoginStatus.success) {
-      // you are logged
-      final AccessToken accessToken = result.accessToken!;
-      final userData = await FacebookAuth.instance
-          .getUserData(fields: "email,name,picture,gender,link");
-      print(userData['email']);
-      print(userData['name']);
-      print(userData['picture']['data']['url']);
-      print(userData['gender']);
-      print("OK");
-      FacebookAuth.instance.logOut();
-    }
-  }
 
   Future<UserCredential?> signInWithFacebook() async {
       final LoginResult result = await FacebookAuth.instance.login(permissions: ['public_profile', 'email']);
@@ -35,70 +18,91 @@ class AuthService {
         // Once signed in, return the UserCredential
         final userData = await FacebookAuth.instance
           .getUserData(fields: "email,name,picture.width(200),gender");
-        var user = await FirebaseAuth.instance.signInWithCredential(credential);
-        if(!user.additionalUserInfo!.isNewUser){
+        UserCredential? userr = await FirebaseAuth.instance.signInWithCredential(credential).then((user) async {
+          if(!user.additionalUserInfo!.isNewUser){
           var data = await FirebaseFirestore.instance.collection('Users').doc(user.user!.uid).get();
           sharedPrefs.gender = data['gender'];
           sharedPrefs.smoker = data['smoker'];
           sharedPrefs.phone = data['phone'];
+          sharedPrefs.driver = data['driver'];
+          FirebaseFirestore.instance.collection('User').doc(user.user!.uid).set({
+            "uid" : user.user!.uid,
+            "name" : data['name'],
+            "email" : data['email'],
+          });
         }
-        print(user.additionalUserInfo!.profile);
         sharedPrefs.loggedin = true;
         sharedPrefs.uid = user.user!.uid;
         sharedPrefs.email = userData['email'];
         sharedPrefs.name = userData['name'];
         sharedPrefs.pp = userData['picture']['data']['url'];
         return user;
+        });
+        return userr;
       }
-    return null;
   }
 
-  Future<User?> signInWithGoogle() async{
+  Future<UserCredential?> signInWithGoogle() async{
     GoogleSignInAccount? googleUser = await GoogleSignIn.standard().signIn();
     GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
-    return FirebaseAuth.instance.currentUser;
+    AuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+    UserCredential? user = await FirebaseAuth.instance.signInWithCredential(credential).then((user) async {
+      if(!user.additionalUserInfo!.isNewUser){
+          var data = await FirebaseFirestore.instance.collection('Users').doc(user.user!.uid).get();
+          sharedPrefs.gender = data['gender'];
+          sharedPrefs.smoker = data['smoker'];
+          sharedPrefs.phone = data['phone'];
+          sharedPrefs.driver = data['driver'];
+        }
+        sharedPrefs.loggedin = true;
+        sharedPrefs.uid = user.user!.uid;
+        sharedPrefs.email = googleUser.email;
+        sharedPrefs.name = googleUser.displayName!;
+        sharedPrefs.pp = googleUser.photoUrl!;
+    });
+    return user;
   }
 
   Future<void> logOut(context) async {
     await FacebookAuth.instance.logOut();
     sharedPrefs.clearShared();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
-  Future reigester(String email, String password, String name) async{
+  Future<UserCredential?> reigester(String email, String password, String name) async{
     try{
-      UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-      User? user = result.user;
-      CollectionReference users = FirebaseFirestore.instance.collection("Users");
-      users.doc(user!.uid).set({
-        "uid" : user.uid,
-        "token" : await user.getIdToken(),
-        "name" : name,
-        "email" : email,
-      });
+      UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);    
+      sharedPrefs.uid = result.user!.uid;
+        CollectionReference users = FirebaseFirestore.instance.collection("Users");
+        users.doc(result.user!.uid).set({
+          "uid" : result.user!.uid,
+          "name" : name,
+          "email" : email,
+        });   
+      return result; 
     } catch (e){
       print(e.toString());
       return null;
     }
   }
 
-  Future signIn(String email, String password) async{
+  Future<UserCredential?> signIn(String email, String password) async{
     try{
-      final User? firebaseUser = (await FirebaseAuth.instance
+      final UserCredential? firebaseUser = (await FirebaseAuth.instance
         .signInWithEmailAndPassword(
         email: email,
         password: password
     ).catchError((errMsg){
       print("Error: " + errMsg.toString());
-    })).user;
+    }));
 
     if(firebaseUser != null)
     {
-      var uff = await FirebaseFirestore.instance.collection('Users').doc(firebaseUser.uid).get();
+      var uff = await FirebaseFirestore.instance.collection('Users').doc(firebaseUser.user!.uid).get();
       var uffd = uff.data();
       sharedPrefs.name = uffd!['name'];
       sharedPrefs.email = uffd['email'];
-      sharedPrefs.uid = firebaseUser.uid;
+      sharedPrefs.uid = firebaseUser.user!.uid;
       sharedPrefs.gender = uffd['gender'];
       sharedPrefs.phone = uffd['phone'];
       sharedPrefs.smoker = uffd['smoker'];
@@ -106,6 +110,7 @@ class AuthService {
       sharedPrefs.driver = uffd['driver'];
       sharedPrefs.loggedin = true;
     }
+    return firebaseUser;
     }catch(e){
       print(e.toString());
       return null;

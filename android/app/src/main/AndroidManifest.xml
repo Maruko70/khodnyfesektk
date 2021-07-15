@@ -1,11 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.khodnyfesektk">
+    package="com.example.khodnyfsektk">
     
   <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
    <application
-        android:label="khodnyfesektk"
-        android:icon="@mipmap/ic_launcher">
+        android:label="خدني ف سكتك"
+        android:icon="@drawable/kfsicon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -34,7 +36,8 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity><meta-data android:name="com.facebook.sdk.ApplicationId" 
+        </activity>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" 
         android:value="@string/facebook_app_id"/>
     
     <activity android:name="com.facebook.FacebookActivity"
@@ -57,5 +60,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6458093605936692~5824240695"/>
     </application>
 </manifest>
