@@ -280,7 +280,7 @@ class _GoingRideState extends State<GoingRide> {
                             SizedBox(height: 20.0),
                             Container(
                               height: 50,
-                              child: AdWidget(ad: banner!,),
+                              child: new AdWidget(ad: banner!,),
                             ),
                             if(widget.did == sharedPrefs.uid)
                             Container(

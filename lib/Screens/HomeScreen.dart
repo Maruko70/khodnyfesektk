@@ -98,9 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               GestureDetector(
                                 onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetails(id: ds.id, uid: ds['uid'])));},
                                 child: RideCard(name: ds['name'], from: ds['from'], to: ds['to'], date: ds['date'], time: ds['time'], psg: ds['psg'], cpsg: ds['cpsg'], duid: ds['uid'], id: ds.id, status: ds['status'], smoker: ds['smoker'])),
+                                if(banner != null)
                                 Container(
                                   height: 50,
-                                  child: AdWidget(ad: banner!,),
+                                  child: new AdWidget(ad: banner!,),
                                 ),
                             ],
                           );
@@ -112,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     else
                     Container(
                       height: 50,
-                      child: AdWidget(ad: banner!,),
+                      child: new AdWidget(ad: banner!,),
                     )
                   ],
                 );
@@ -155,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     else
                     Container(
                       height: 50,
-                      child: AdWidget(ad: banner!,),
+                      child: new AdWidget(ad: banner!,),
                     )
                   ],
                 );

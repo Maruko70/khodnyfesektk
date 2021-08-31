@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 import '../ad_state.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({ Key? key }) : super(key: key);
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -28,15 +28,16 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   BannerAd? banner;
   File? _imageFile;
-  final picker =  ImagePicker();
+  final picker = ImagePicker();
   bool _load = false;
-  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  static const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   Random _rnd = Random();
 
   String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
-  Future pickImage() async{
+  Future pickImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       _imageFile = File(pickedFile!.path);
@@ -44,26 +45,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     uploadImage();
   }
 
-  Future uploadImage() async{
+  Future uploadImage() async {
     String rnd = getRandomString(5);
-    String fileName = "${sharedPrefs.uid}-${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}-$rnd";
-    FirebaseStorage.instance.ref().child('uploads/$fileName').putFile(_imageFile!).then((val) async {
+    String fileName =
+        "${sharedPrefs.uid}-${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}-$rnd";
+    FirebaseStorage.instance
+        .ref()
+        .child('uploads/$fileName')
+        .putFile(_imageFile!)
+        .then((val) async {
       var link = await val.ref.getDownloadURL();
       setState(() {
-        FirebaseFirestore.instance.collection('Users').doc(sharedPrefs.uid).update({"pp" : link}).whenComplete((){
+        FirebaseFirestore.instance
+            .collection('Users')
+            .doc(sharedPrefs.uid)
+            .update({"pp": link}).whenComplete(() {
           setState(() {
             sharedPrefs.pp = link;
           });
         });
       });
-    });    
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final adState = Provider.of<AdState>(context);
-    adState.initilization.then((status){
+    adState.initilization.then((status) {
       setState(() {
         banner = BannerAd(
           adUnitId: adState.bannerAdUnitId,
@@ -74,16 +83,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return Directionality(textDirection: TextDirection.rtl,
+    return Directionality(
+      textDirection: TextDirection.rtl,
       child: Scaffold(
         bottomNavigationBar: Navbar(),
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("الملف الشخصي", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          title: Text("الملف الشخصي",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           centerTitle: true,
           elevation: 0,
         ),
@@ -103,26 +114,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.white,
                     ),
                     child: ClipOval(
-                      child: sharedPrefs.pp.isEmpty ? Image.network("https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg", width: 100) : Image.network(sharedPrefs.pp, width: 100, height: 100),
+                      child: sharedPrefs.pp.isEmpty
+                          ? Image.network(
+                              "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg",
+                              width: 100)
+                          : Image.network(sharedPrefs.pp,
+                              width: 100, height: 100),
                     ),
                   ),
-                  CircleAvatar(child: IconButton(onPressed: pickImage, icon: Icon(Icons.camera_alt))),
+                  CircleAvatar(
+                      child: IconButton(
+                          onPressed: pickImage, icon: Icon(Icons.camera_alt))),
                 ],
               ),
-              SizedBox(height: 10.0,),
+              SizedBox(
+                height: 10.0,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(sharedPrefs.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                  SizedBox(width: 10,),
-                  sharedPrefs.gender == "male" ? Icon(Icons.male) : sharedPrefs.gender == "female" ? Icon(Icons.female) : Text(""),
+                  Text(
+                    sharedPrefs.name,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  sharedPrefs.gender == "male"
+                      ? Icon(Icons.male)
+                      : sharedPrefs.gender == "female"
+                          ? Icon(Icons.female)
+                          : Text(""),
                 ],
               ),
-              Text(sharedPrefs.email, style: TextStyle(fontSize: 16,),),
-              SizedBox(height: 30.0,),
+              Text(
+                sharedPrefs.email,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(
+                height: 30.0,
+              ),
               GestureDetector(
-                onTap: (){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RidesHistory()));
+                onTap: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => RidesHistory()));
                 },
                 child: Container(
                   width: size.width - 40,
@@ -133,7 +173,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(10.0),
                     child: Row(
                       children: [
-                        Text("تاريخ الرحلات", style: TextStyle(fontSize: 18),),
+                        Text(
+                          "تاريخ الرحلات",
+                          style: TextStyle(fontSize: 18),
+                        ),
                         Spacer(),
                         Icon(Icons.arrow_forward_ios),
                       ],
@@ -143,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 10.0),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.pushReplacementNamed(context, "/contact");
                 },
                 child: Container(
@@ -155,7 +198,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(10.0),
                     child: Row(
                       children: [
-                        Text("تواصل معنا", style: TextStyle(fontSize: 18),),
+                        Text(
+                          "تواصل معنا",
+                          style: TextStyle(fontSize: 18),
+                        ),
                         Spacer(),
                         Icon(Icons.arrow_forward_ios),
                       ],
@@ -165,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 10.0),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.pushReplacementNamed(context, "/ratings");
                 },
                 child: Container(
@@ -177,7 +223,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(10.0),
                     child: Row(
                       children: [
-                        Text("التقييمات", style: TextStyle(fontSize: 18),),
+                        Text(
+                          "التقييمات",
+                          style: TextStyle(fontSize: 18),
+                        ),
                         Spacer(),
                         Icon(Icons.arrow_forward_ios),
                       ],
@@ -229,9 +278,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),*/
-              SizedBox(height: 10.0,),
+              SizedBox(
+                height: 10.0,
+              ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   AuthService().logOut(context);
                 },
                 child: Container(
@@ -243,7 +294,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(10.0),
                     child: Row(
                       children: [
-                        Text("تسجيل خروج", style: TextStyle(fontSize: 18),),
+                        Text(
+                          "تسجيل خروج",
+                          style: TextStyle(fontSize: 18),
+                        ),
                         Spacer(),
                         Icon(Icons.logout),
                       ],
@@ -252,10 +306,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               SizedBox(height: 60),
-              Container(
-                height: 50,
-                child: AdWidget(ad: banner!),
-              ),
+              if (banner != null)
+                Container(
+                  height: 50,
+                  child: new AdWidget(ad: banner!),
+                ),
             ],
           ),
         ),

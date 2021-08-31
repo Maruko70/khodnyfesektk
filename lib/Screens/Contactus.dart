@@ -152,7 +152,7 @@ class _ContactUsState extends State<ContactUs> {
 
               Container(
                 height: 50,
-                child: AdWidget(ad: banner!,),
+                child: new AdWidget(ad: banner!,),
               ),
             ],
           ),

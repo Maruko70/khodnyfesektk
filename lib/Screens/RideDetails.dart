@@ -8,7 +8,7 @@ import 'package:khodnyfesektk/consts.dart';
 import 'package:provider/provider.dart';
 
 class RideDetails extends StatefulWidget {
-  const RideDetails({ Key? key, this.id, this.uid }) : super(key: key);
+  const RideDetails({Key? key, this.id, this.uid}) : super(key: key);
   final String? id, uid;
   @override
   _RideDetailsState createState() => _RideDetailsState();
@@ -28,7 +28,7 @@ class _RideDetailsState extends State<RideDetails> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final adState = Provider.of<AdState>(context);
-    adState.initilization.then((status){
+    adState.initilization.then((status) {
       setState(() {
         banner = BannerAd(
           adUnitId: adState.bannerAdUnitId,
@@ -46,14 +46,20 @@ class _RideDetailsState extends State<RideDetails> {
       _load = true;
     });
     super.initState();
-    FirebaseFirestore.instance.collection('Users').doc(widget.uid).get().then((value){
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(widget.uid)
+        .get()
+        .then((value) {
       setState(() {
         dName = value['name'];
-        dPP = value['pp'] == null ? "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg" : value['pp'];
+        dPP = value['pp'] == null
+            ? "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg"
+            : value['pp'];
         dPhone = value['phone'];
         dCar = value['carNo'];
       });
-    }).whenComplete((){
+    }).whenComplete(() {
       setState(() {
         _load = false;
       });
@@ -62,20 +68,29 @@ class _RideDetailsState extends State<RideDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(textDirection: TextDirection.rtl,
+    return Directionality(
+      textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("تفاصيل الرحلة", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          title: Text(
+            "تفاصيل الرحلة",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
         ),
         bottomNavigationBar: Navbar(),
         body: Stack(
           children: [
             StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance.collection('Rides').doc(widget.id).snapshots(),
-              builder: (context, snapshot){
-                if(!snapshot.hasData){
-                  return Center(child: CircularProgressIndicator(),);
+              stream: FirebaseFirestore.instance
+                  .collection('Rides')
+                  .doc(widget.id)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
                 return Container(
                   alignment: Alignment.centerRight,
@@ -84,9 +99,17 @@ class _RideDetailsState extends State<RideDetails> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 30.0,),
-                        Text("تفاصيل السائق", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
-                        SizedBox(height: 20.0,),
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        Text(
+                          "تفاصيل السائق",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
                         Container(
                           decoration: kBoxDecorationStyle2,
                           child: Padding(
@@ -94,17 +117,42 @@ class _RideDetailsState extends State<RideDetails> {
                             child: Row(
                               children: [
                                 ClipOval(
-                                  child: CachedNetworkImage(imageUrl: dPP, height: 75, width: 75,),
+                                  child: CachedNetworkImage(
+                                    imageUrl: dPP,
+                                    height: 75,
+                                    width: 75,
+                                  ),
                                 ),
-                                SizedBox(width: 10.0,),
+                                SizedBox(
+                                  width: 10.0,
+                                ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(dName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                                    SizedBox(height: 5.0,),
-                                    Text(dPhone, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                                    SizedBox(height: 5.0,),
-                                    Text("رقم السيارة : $dCar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                                    Text(
+                                      dName,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    SizedBox(
+                                      height: 5.0,
+                                    ),
+                                    Text(
+                                      dPhone,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    SizedBox(
+                                      height: 5.0,
+                                    ),
+                                    Text(
+                                      "رقم السيارة : $dCar",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
                                   ],
                                 ),
                                 Spacer(),
@@ -113,32 +161,80 @@ class _RideDetailsState extends State<RideDetails> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 30.0,),
-                        Text("تفاصيل الرحلة", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
-                        SizedBox(height: 30.0,),
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        Text(
+                          "تفاصيل الرحلة",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24),
+                        ),
+                        SizedBox(
+                          height: 30.0,
+                        ),
                         Container(
                           child: StreamBuilder<DocumentSnapshot>(
-                            stream: FirebaseFirestore.instance.collection('Rides').doc(widget.id).snapshots(),
-                            builder: (context, snapshot){
-                              if(!snapshot.hasData){
-                                return Center(child: CircularProgressIndicator(),);
+                            stream: FirebaseFirestore.instance
+                                .collection('Rides')
+                                .doc(widget.id)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
                               }
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
-                                      Flexible(child: Text("من : ${snapshot.data!['from']}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),)),
-                                      SizedBox(width: 30.0,),
-                                      Flexible(child: Text("الى : ${snapshot.data!['to']}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),)),
+                                      Flexible(
+                                          child: Text(
+                                        "من : ${snapshot.data!['from']}",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      )),
+                                      SizedBox(
+                                        width: 30.0,
+                                      ),
+                                      Flexible(
+                                          child: Text(
+                                        "الى : ${snapshot.data!['to']}",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      )),
                                     ],
                                   ),
-                                  SizedBox(height: 30.0,),
-                                  Text("تاريخ الرحلة : ${snapshot.data!['date']}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                                  SizedBox(height: 30.0,),
-                                  Text("زمن الرحلة : ${snapshot.data!['time']}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                                  SizedBox(height: 30.0,),
-                                  Text("عدد الركاب : ${snapshot.data!['cpsg']}/${snapshot.data!['psg']}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                                  SizedBox(
+                                    height: 30.0,
+                                  ),
+                                  Text(
+                                    "تاريخ الرحلة : ${snapshot.data!['date']}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  SizedBox(
+                                    height: 30.0,
+                                  ),
+                                  Text(
+                                    "زمن الرحلة : ${snapshot.data!['time']}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  SizedBox(
+                                    height: 30.0,
+                                  ),
+                                  Text(
+                                    "عدد الركاب : ${snapshot.data!['cpsg']}/${snapshot.data!['psg']}",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
                                 ],
                               );
                             },
@@ -146,7 +242,7 @@ class _RideDetailsState extends State<RideDetails> {
                         ),
                         Container(
                           height: 50,
-                          child: AdWidget(ad: banner!),
+                          child: new AdWidget(ad: banner!),
                         ),
                       ],
                     ),
@@ -154,11 +250,13 @@ class _RideDetailsState extends State<RideDetails> {
                 );
               },
             ),
-            if(_load)
-            Container(
-              color: Colors.black.withOpacity(0.50),
-              child: Center(child: CircularProgressIndicator(),),
-            ),
+            if (_load)
+              Container(
+                color: Colors.black.withOpacity(0.50),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
           ],
         ),
       ),
