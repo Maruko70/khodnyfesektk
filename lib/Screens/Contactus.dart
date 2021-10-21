@@ -50,12 +50,12 @@ class _ContactUsState extends State<ContactUs> {
         ),
         bottomNavigationBar: Navbar(),
         body: Container(
-          child: Column(
+          child: ListView(
             children: [
-              SizedBox(height: 30.0,),
+              SizedBox(height: 20.0,),
               Container(
-                width: MediaQuery.of(context).size.width / 2.2,
-                height: 35.0,
+                width: MediaQuery.of(context).size.width / 1.8,
+                height: 50.0,
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(10.0),
@@ -63,25 +63,30 @@ class _ContactUsState extends State<ContactUs> {
                     BoxShadow(
                       color: Colors.blue,
                       offset: Offset(0, 2),
-                      blurRadius: 10,
+                      blurRadius: 3,
                     ),
                   ],
                 ),
                 child: TextButton(onPressed: () async {
                   try {
     bool launched =
-        await launch('fb://profile/106537995027281', forceSafariVC: false, forceWebView: false);
-    if (!launched) {
+        await launch('fb://page/106537995027281', forceSafariVC: false, forceWebView: false);
+    if (!launched) { 
       await launch('https://www.facebook.com/khodnyfskatk', forceSafariVC: false, forceWebView: false);
       }
   } catch (e) {
     await launch('https://www.facebook.com/khodnyfskatk', forceSafariVC: false, forceWebView: false);
   }
-                }, child: Row(children: [
+                }, child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                   Icon(Icons.facebook, color: Colors.white),
-                  Text("صفحتنا على فيسبوك"),
+                  // SizedBox(width: 10.0),
+                  Center(child: Text("صفحتنا على فيسبوك")),
+                  Icon(Icons.facebook, color: Colors.blue),
                 ],)),
               ),
+              SizedBox(height: 20.0,),
               Divider(thickness: 1.2, color: Colors.grey[400]),
               SizedBox(height: 30.0,),
                     Text("الاسم", style: TextStyle(fontSize: 20,),),
@@ -171,8 +176,8 @@ class _ContactUsState extends State<ContactUs> {
 
   // Create our mail/envelope.
   var envelope = new Envelope()
-    ..from = 'wingzteam77@gmail.com'
-    ..recipients.add('looflooy1@gmail.com')
+    ..from = '${_emailTextEditingController.text.trim()}'
+    ..recipients.add('magicmoon9@gmail.com')
     ..subject = _nameTextEditingController.text.trim()
     ..text = _msgTextEditingController.text;
 

@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -254,23 +258,365 @@ class _LoginScreenState extends State<LoginScreen> {
                                     _load = false;
                                   });
                                 } else {
-                                  AuthService()
-                                      .signIn(
-                                          _emailTextEditingConroller.text
-                                              .trim(),
-                                          _passwordTextEditingConroller.text
-                                              .trim())
-                                      .whenComplete(() {
-                                    sharedPrefs.loggedin = true;
-                                    setState(() {
-                                      _load = false;
+                                  try {
+                                    FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailTextEditingConroller.text.trim(), password: _passwordTextEditingConroller.text.trim()).then((value){
+                                      
+                                      sharedPrefs.loggedin = true;
+                                      setState(() {
+                                        _load = false;
+                                      });
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProfileScreen()));
+                                      
+                                    }).catchError((errMsg) {
+                                        if (Platform.isAndroid) {
+                                          switch (errMsg.toString()) {
+                                            case '[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted.':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title:  Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content: Text(
+                                                              "هذا الحساب غير موجود",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child:
+                                                                    Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      )),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            case '[firebase_auth/wrong-password] The password is invalid or the user does not have a password.':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                          title: Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content:  Text(
+                                                              "كلمة المرور غير صالحة",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child:Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      ),),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                          title: Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content:  Text(
+                                                              "خطأ في الشبكة ، تأكد من الأتصال لديك",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child:Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      )),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            case '[firebase_auth/too-many-requests] We have blocked all requests from this device due to unusual activity. Try again later.':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title:  Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content: Text(
+                                                              "تم حظر الطلبات من هذا الجهاز. رجاء قم بالمحاولة لاحقاً.",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child:Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      )),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            // ...
+                                            default:
+                                              print(
+                                                  'Case ${errMsg.toString()} is not yet implemented');
+                                          }
+                                        } else if (Platform.isIOS) {
+                                          switch (errMsg.toString()) {
+                                            case 'Error 17011':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title: Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content: Text(
+                                                              "هذا الحساب غير موجود",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child: Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      )),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            case 'Error 17009':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title: Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      content: Text(
+                                                              "كلمة المرور غير صالحة",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child: Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      ), ),  
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            case 'Error 17020':
+                                              showCupertinoDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title:  Text(
+                                                              "خطأ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          
+                                                      content:Text(
+                                                              "خطأ في الشبكة ، تأكد من الأتصال لديك",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                _load = false;
+                                                              });
+                                                            },
+                                                            child:Text(
+                                                                        "موافق",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      )),
+                                                      ],
+                                                    );
+                                                  });
+                                              break;
+                                            // ...
+                                            default:
+                                              print(
+                                                  'Case ${errMsg.toString()} is not yet implemented');
+                                          }
+                                        }
+                                        print("Error: " + errMsg.toString());
+                                      });
+                                  } catch (e) {
+                                    print("//////////////////////////////////error////////////////////////////");
+                                    showDialog(context: context, builder: (_){
+                                      return Dialog(
+                                        child: Text(e.toString()),
+                                      );
                                     });
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfileScreen()));
-                                  });
+                                  }
+                                  // AuthService()
+                                  //     .signIn(
+                                  //         _emailTextEditingConroller.text
+                                  //             .trim(),
+                                  //         _passwordTextEditingConroller.text
+                                  //             .trim())
+                                  //     .whenComplete(() {
+                                  //   sharedPrefs.loggedin = true;
+                                  //   setState(() {
+                                  //     _load = false;
+                                  //   });
+                                  //   Navigator.pushReplacement(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //           builder: (context) =>
+                                  //               ProfileScreen()));
+                                  // });
                                 }
                               },
                               child: Text("دخول"),
